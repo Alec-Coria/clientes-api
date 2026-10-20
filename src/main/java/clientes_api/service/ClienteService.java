@@ -27,35 +27,34 @@ public class ClienteService {
 
         Cliente clienteGuardado = clienteRepository.save(client);
 
-        return new ClienteResponse(
-                clienteGuardado.getId(),
-                clienteGuardado.getName(),
-                clienteGuardado.getEmail(),
-                clienteGuardado.getTelefono()
-        );
+        return this.toResponse(clienteGuardado);
     }
 
-    public List<Cliente> listarClientes() {
-        return clienteRepository.findAll();
+    public List<ClienteResponse> listarClientes() {
+        return clienteRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Cliente buscarPorId(Long id) {
-        return clienteRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Cliente no encontrado"
-                ));
-    }
-
-    public Cliente actualizarCliente(Long id, Cliente datosNuevos) {
+    public ClienteResponse buscarPorId(Long id) {
         Cliente clienteExistente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Cliente no encontrado"
                 ));
-        clienteExistente.setName(datosNuevos.getName());
-        clienteExistente.setEmail(datosNuevos.getEmail());
-        clienteExistente.setTelefono(datosNuevos.getTelefono());
 
-        return clienteRepository.save(clienteExistente);
+        return this.toResponse(clienteExistente);
+    }
+
+    public ClienteResponse actualizarCliente(Long id, ClienteRequest datosNuevos) {
+        Cliente clienteExistente = clienteRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Cliente no encontrado"
+                ));
+        clienteExistente.setName(datosNuevos.name());
+        clienteExistente.setEmail(datosNuevos.email());
+        clienteExistente.setTelefono(datosNuevos.telefono());
+
+        return this.toResponse(clienteRepository.save(clienteExistente));
     }
 
     public void eliminarCliente(Long id){
@@ -65,6 +64,15 @@ public class ClienteService {
                 ));
 
         clienteRepository.deleteById(id);
+    }
+
+    private ClienteResponse toResponse (Cliente cliente) {
+        return new ClienteResponse(
+                cliente.getId(),
+                cliente.getName(),
+                cliente.getEmail(),
+                cliente.getTelefono()
+        );
     }
 
 }

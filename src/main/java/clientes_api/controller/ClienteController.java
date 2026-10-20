@@ -23,26 +23,27 @@ public class ClienteController {
 
     @PostMapping
     public ResponseEntity<ClienteResponse> crearCliente(@Valid @RequestBody ClienteRequest request){
-        ClienteResponse response = clienteService.guardarCliente(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(clienteService.guardarCliente(request));
     }
 
     @GetMapping
-    public List<Cliente> getClientes(){
+    public List<ClienteResponse> getClientes(){
         return clienteService.listarClientes();
     }
 
     @GetMapping(path = "/{id}")
-    public Cliente getClienteById(@PathVariable Long id){
-        return clienteService.buscarPorId(id);
+    public ResponseEntity<ClienteResponse> getClienteById(@PathVariable Long id){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(clienteService.buscarPorId(id));
     }
 
     @PutMapping(path = "/{id}")
-    public Cliente updateCliente(
+    public ClienteResponse updateCliente(
             @PathVariable Long id,
-            @RequestBody Cliente cliente){
+            @Valid @RequestBody ClienteRequest cliente){
         return clienteService.actualizarCliente(id, cliente);
     }
 
